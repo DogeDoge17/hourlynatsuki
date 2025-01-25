@@ -72,9 +72,9 @@ public partial class Program
 
         DriverCreation.options.headless = true;
 
-        TwitterBot rise = new(TimeSpan.FromMinutes(60)) { DisplayName = "Hourly Natsuki" };
-        rise.runAction += Run;
-        rise.Start();
+        TwitterBot suki = new(TimeSpan.FromMinutes(60)) { DisplayName = "Hourly Natsuki" };
+        suki.runAction += Run;
+        suki.Start();
     }
 
     static void NatsSprite()
