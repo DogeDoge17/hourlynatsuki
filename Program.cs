@@ -61,8 +61,8 @@ public partial class Program
     static List<Tuple<float, Action>> _weightedRun = new List<Tuple<float, Action>>
     {
         new Tuple<float, Action>(.60f, DialogueQuote),
-        new Tuple<float, Action>(.35f, NatsSprite),
-        new Tuple<float, Action>(.05f, NatsMedia),
+        new Tuple<float, Action>(.33f, NatsSprite),
+        new Tuple<float, Action>(.07f, NatsMedia),
     };
 
 
@@ -74,7 +74,7 @@ public partial class Program
 
         TwitterBot suki = new(TimeSpan.FromMinutes(60)) { DisplayName = "Hourly Natsuki" };
         suki.runAction += Run;
-        suki.Start();
+        suki.Start(argv);
     }
 
     static void NatsSprite()
