@@ -75,8 +75,9 @@ public partial class Program
             img.Save(fs, new PngEncoder());
         }
 
-        Output.WriteLine("Tweeting suki sprite, ");
+        Output.Write("Tweeting suki sprite, ");
         expressions.ForEach(exp => Output.Write(new Path(exp).FileName + " "));
+        Output.WriteLine(string.Empty);
 
         compose.Tweet(new TweetData[]
         {
