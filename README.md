@@ -1,7 +1,7 @@
 # Hourly Natsuki
  The source code to [Hourly Natsuki](https://x.com/hourlynatsuki) on Twitter.\
  The Bot has a 60% chance to tweet out a random Natsuki dialogue from the game. A 33% chance to generate a sprite using assests from [MPT](https://github.com/chronoshag/DDLCMPT). And a 7% chance to tweet random official media.\
- When the bot encounters a piece of dialogue that prompts Ren'Py to say the player name, the bot will randomly choose a name from a predefined list. If you have any names you want to be added, feel free to reach out and ask.
+ When the bot encounters a piece of dialogue that prompts Ren'Py to say the player name, the bot will randomly choose a name from a [predefined list](https://github.com/DogeDoge17/hourlynatsuki/blob/master/playernames.txt). If you have any names you want to be added, feel free to reach out and ask.
 
 # Setup
  [Build](https://github.com/Doge-Productions/Quill.api/tree/experimental) or [locate Quill.dll](https://github.com/DogeDoge17/cli-bot-lib/blob/main/Quill.dll) and [build](https://github.com/DogeDoge17/cli-bot-lib), and then make project references to both the libraries in the csproj. You may also recursive clone [cli-bot-lib](https://github.com/DogeDoge17/cli-bot-lib) and everything should work from there (granted you don't change the structure).\
