@@ -18,38 +18,9 @@ using System.IO;
 public partial class Program
 {
     public static readonly string[] _allDia = File.ReadAllLines(Path.Assembly / "suki-dia.txt");
-
     static List<int> _allowedWords = new();
 
     static string[] _mediaList = { };
-    //=
-    //{
-    //        "https://pbs.twimg.com/media/Gh3K6DHWUAA2VGm?format=jpg", 
-    //        "https://pbs.twimg.com/media/GhzsXoAXcAAbIMy?format=jpg", 
-    //        "https://pbs.twimg.com/media/GiqaOUEWIAAdOLQ?format=jpg",
-    //        //"https://web.archive.org/web/20220318064615if_/https://pbs.twimg.com/media/FJb2scyXMAQtU4C.jpg", static sticker
-    //        "https://pbs.twimg.com/media/Giqa3e5WUAAtKp-?format=jpg",
-    //        "https://pbs.twimg.com/media/GiqdVpDXgAALwLT?format=jpg",
-    //        "https://pbs.twimg.com/media/GiqdwQLX0AAD-Zh?format=jpg",
-    //        "https://pbs.twimg.com/media/GiqeVAnXIAA6AOj?format=jpg",
-    //        "https://pbs.twimg.com/media/GiqefK0W8AA7qd2?format=jpg",
-    //        "https://pbs.twimg.com/media/Giqe1cKWMAAuuYh?format=jpg",
-    //        "https://pbs.twimg.com/media/GiqfC4NXwAAu45Z?format=jpg",
-    //        "https://pbs.twimg.com/media/Giqhd9cWUAASxq7?format=jpg",
-    //        "https://pbs.twimg.com/media/GiqhlsDXMAAg209?format=jpg",
-    //        "https://pbs.twimg.com/media/Giqhty3WsAAFieS?format=jpg",
-    //        "https://pbs.twimg.com/media/Giqh1JgX0AAAnDq?format=jpg",
-    //        //"https://pbs.twimg.com/media/FJb2qrOXoAYXCG4?format=png", // oh thats gore of my confort character....
-    //        //"https://pbs.twimg.com/media/FJb2tx9X0AM7Q2w?format=png", // :(
-    //        "https://pbs.twimg.com/media/GiqiKu3WQAAZSah?format=jpg",
-    //        "https://pbs.twimg.com/media/GiqiRgFWAAAwAAZ?format=jpg",
-    //        "https://pbs.twimg.com/media/GiqifyQW4AA9rQ7?format=jpg",
-    //        "https://pbs.twimg.com/media/GiqilM-WEAAN5FH?format=jpg",
-    //        "https://pbs.twimg.com/media/GiqiwWDXwAAcigL?format=jpg",
-    //        "https://pbs.twimg.com/media/Ghzt_vNXEAA9kat?format=jpg",
-    //        "https://media.tenor.com/bwfA1PrlwQwAAAAj/natsuki.gif"
-    //};
-
     static string[] _playerNames = { };
 
     static ComposePage compose = null;
