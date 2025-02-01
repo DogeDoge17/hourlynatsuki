@@ -12,6 +12,7 @@ using System.Text;
 using Quill;
 using hourlynatsuki;
 using System.Runtime.CompilerServices;
+using System.IO;
 
 
 public partial class Program
@@ -20,41 +21,36 @@ public partial class Program
 
     static List<int> _allowedWords = new();
 
-    static string[] _mediaList =
-    {
-            "https://pbs.twimg.com/media/FJb3jfIWUAAWkdG?format=jpg",
-            "https://pbs.twimg.com/media/GhzsXoAXcAAbIMy?format=jpg",
-            "https://pbs.twimg.com/media/FJb3VelXsAMycq1?format=jpg",
-            "https://pbs.twimg.com/media/FJb2scyXMAQtU4C?format=jpg",
-            "https://pbs.twimg.com/media/FJb3gS6XMAAXbp9?format=jpg",
-            "https://pbs.twimg.com/media/FJb3QOhWUAMjaQD?format=jpg",
-            "https://pbs.twimg.com/media/FJb3cVVWYAUaLeP?format=jpg",
-            "https://pbs.twimg.com/media/FJb3UmYWUAQ_KDK?format=jpg",
-            "https://pbs.twimg.com/media/FJb2yR-XMAUiAVU?format=jpg",
-            "https://pbs.twimg.com/media/FJb3O4eXEAEOSYi?format=jpg",
-            "https://pbs.twimg.com/media/FJb3WXpWYAE6PC1?format=jpg",
-            "https://pbs.twimg.com/media/FJb3idnXoAM_pu3?format=jpg",
-            "https://pbs.twimg.com/media/FJb3eGRWYAMpSuE?format=jpg",
-            "https://pbs.twimg.com/media/FJb3hcWX0AM--to?format=jpg",
-            "https://pbs.twimg.com/media/FJb3fM9X0AIUnzx?format=jpg",
-            "https://pbs.twimg.com/media/FJb2tx9X0AM7Q2w?format=png",
-            "https://pbs.twimg.com/media/FJb2qrOXoAYXCG4?format=png",
-            "https://pbs.twimg.com/media/FJb2vSjWUAQzuUg?format=jpg",
-            "https://pbs.twimg.com/media/FJb2wuQWQAQA7v9?format=jpg",
-            "https://pbs.twimg.com/media/FJb29A9WQAEAx57?format=jpg",
-            "https://pbs.twimg.com/media/FJb3XfWWQAATF0_?format=jpg",
-            "https://pbs.twimg.com/media/FJb2-zvXwAI3NPs?format=jpg",
-            "https://pbs.twimg.com/media/Ghzt_vNXEAA9kat?format=jpg",
-            "https://media.tenor.com/bwfA1PrlwQwAAAAj/natsuki.gif"
-    };
+    static string[] _mediaList = { };
+    //=
+    //{
+    //        "https://pbs.twimg.com/media/Gh3K6DHWUAA2VGm?format=jpg", 
+    //        "https://pbs.twimg.com/media/GhzsXoAXcAAbIMy?format=jpg", 
+    //        "https://pbs.twimg.com/media/GiqaOUEWIAAdOLQ?format=jpg",
+    //        //"https://web.archive.org/web/20220318064615if_/https://pbs.twimg.com/media/FJb2scyXMAQtU4C.jpg", static sticker
+    //        "https://pbs.twimg.com/media/Giqa3e5WUAAtKp-?format=jpg",
+    //        "https://pbs.twimg.com/media/GiqdVpDXgAALwLT?format=jpg",
+    //        "https://pbs.twimg.com/media/GiqdwQLX0AAD-Zh?format=jpg",
+    //        "https://pbs.twimg.com/media/GiqeVAnXIAA6AOj?format=jpg",
+    //        "https://pbs.twimg.com/media/GiqefK0W8AA7qd2?format=jpg",
+    //        "https://pbs.twimg.com/media/Giqe1cKWMAAuuYh?format=jpg",
+    //        "https://pbs.twimg.com/media/GiqfC4NXwAAu45Z?format=jpg",
+    //        "https://pbs.twimg.com/media/Giqhd9cWUAASxq7?format=jpg",
+    //        "https://pbs.twimg.com/media/GiqhlsDXMAAg209?format=jpg",
+    //        "https://pbs.twimg.com/media/Giqhty3WsAAFieS?format=jpg",
+    //        "https://pbs.twimg.com/media/Giqh1JgX0AAAnDq?format=jpg",
+    //        //"https://pbs.twimg.com/media/FJb2qrOXoAYXCG4?format=png", // oh thats gore of my confort character....
+    //        //"https://pbs.twimg.com/media/FJb2tx9X0AM7Q2w?format=png", // :(
+    //        "https://pbs.twimg.com/media/GiqiKu3WQAAZSah?format=jpg",
+    //        "https://pbs.twimg.com/media/GiqiRgFWAAAwAAZ?format=jpg",
+    //        "https://pbs.twimg.com/media/GiqifyQW4AA9rQ7?format=jpg",
+    //        "https://pbs.twimg.com/media/GiqilM-WEAAN5FH?format=jpg",
+    //        "https://pbs.twimg.com/media/GiqiwWDXwAAcigL?format=jpg",
+    //        "https://pbs.twimg.com/media/Ghzt_vNXEAA9kat?format=jpg",
+    //        "https://media.tenor.com/bwfA1PrlwQwAAAAj/natsuki.gif"
+    //};
 
-    static string[] playerNames =
-    {
-            "King Von",
-            "Chris",
-            "Wolf",
-            "Ace",
-    };
+    static string[] _playerNames = { };
 
     static ComposePage compose = null;
 
@@ -71,6 +67,9 @@ public partial class Program
         RefreshWords();
 
         DriverCreation.options.headless = true;
+
+        _playerNames = File.OpenText("playernames.txt").ReadToEnd().Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).Select(wr => wr.Trim()).ToArray();
+        _mediaList = File.OpenText("media.txt").ReadToEnd().Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).Select(wr => wr.Trim()).ToArray();
 
         TwitterBot suki = new(TimeSpan.FromMinutes(60)) { DisplayName = "Hourly Natsuki" };
         suki.runAction += Run;
@@ -127,7 +126,7 @@ public partial class Program
     {
         int randDia = Random.Shared.Next(0, _allowedWords.Count);
 
-        string dia = _allDia[_allowedWords[randDia]].Replace("[player]", playerNames[Random.Shared.Next(0, playerNames.Length)]);
+        string dia = _allDia[_allowedWords[randDia]].Replace("[player]", _playerNames[Random.Shared.Next(0, _playerNames.Length)]);
 
         Output.WriteLine($"Tweeting quote \"{dia.TrimEnd('.')}\".");
 

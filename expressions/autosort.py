@@ -20,22 +20,6 @@ for patr in parhs:
 	if not os.path.isdir(os.getcwd() + "\\"+patr+"\\fs"):		
 		os.makedirs(os.getcwd() + "\\"+patr+"\\fs") 	
 
-#if not os.path.isdir(os.getcwd() + "\\eyes"):
-#	os.makedirs(os.getcwd() + "\\ff\\eyes") 
-#	os.makedirs(os.getcwd() + "\\fs\\eyes") 
-#if not os.path.isdir(os.getcwd() + "\\body"):
-#	os.makedirs(os.getcwd() + "\\body") 
-#if not os.path.isdir(os.getcwd() + "\\brows"):
-#	os.makedirs(os.getcwd() + "\\brows") 
-#if not os.path.isdir(os.getcwd() + "\\head"):
-#	os.makedirs(os.getcwd() + "\\head") 
-#if not os.path.isdir(os.getcwd() + "\\mouth"):
-#	os.makedirs(os.getcwd() + "\\mouth")
-#if not os.path.isdir(os.getcwd() + "\\nose"):
-#	os.makedirs(os.getcwd() + "\\nose") 
-#if not os.path.isdir(os.getcwd() + "\\extra"):
-#	os.makedirs(os.getcwd() + "\\extra") 
-
 print("sorting")
 for file in files:
 	if not file.endswith(".png"): 
