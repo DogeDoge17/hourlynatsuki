@@ -20,8 +20,8 @@ public partial class Program
     public static readonly string[] _allDia = File.ReadAllLines(Path.Assembly / "suki-dia.txt");
     static List<int> _allowedWords = new();
 
-    static string[] _mediaList = { };
-    static string[] _playerNames = { };
+    static string[] _mediaList = [];
+    static string[] _playerNames = [];
 
     static ComposePage compose = null;
 

@@ -5,6 +5,8 @@ using System.Text;
 using cli_bot;
 using System.Threading.Tasks;
 using Path = cli_bot.Path;
+using System.Reflection.Metadata;
+using OpenQA.Selenium.DevTools.V130.Page;
 
 namespace hourlynatsuki
 {
@@ -23,7 +25,6 @@ namespace hourlynatsuki
                 return;
             }
 
-            //left arm
             others.Add(System.IO.Path.Combine(path, Random.Shared.NextDouble() > 0.5 ? $"natsuki_turned_{(casual ? "casual" : "uniform")}_left_down.png" : $"natsuki_turned_{(casual ? "casual" : "uniform")}_left_hip.png"));
             others.Add(System.IO.Path.Combine(path, Random.Shared.NextDouble() > 0.5 ? $"natsuki_turned_{(casual ? "casual" : "uniform")}_right_down.png" : $"natsuki_turned_{(casual ? "casual" : "uniform")}_right_hip.png"));
         }
@@ -42,23 +43,31 @@ namespace hourlynatsuki
         {
             double mode = Random.Shared.NextDouble();
 
-            if (mode > 0.95)
-            {
-                if (Random.Shared.NextDouble() > 0.4)
-                    others.Add(System.IO.Path.Combine(Path.Assembly, "expressions", "brows", "ff", (Random.Shared.NextDouble() > .5 ? "natsuki_ff_eyebrows_b3a.png" : "natsuki_ff_eyebrows_b3b.png")));
+            string eyes = others[others.Count - 1];
+            
+            string[] lowEyes = { "natsuki_ff_eyebrows_b3a.png", "natsuki_ff_eyebrows_b3b.png", "natsuki_ff_eyebrows_b3c.png" };
 
+            // only closed eyes should have the low eyebrows
+            if(eyes.Contains("e4") && !eyes.Contains("e4c"))
+            {                
+
+                // to add variation
+                others.Add(Random.Shared.NextDouble() > .2 ? System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort, lowEyes[Random.Shared.Next(0, lowEyes.Length)]) : GetRandomFile(System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort)));
                 return;
             }
 
-            List<string> files = new(Directory.GetFiles(System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort)));
+            List<string> brows = Directory.GetFiles(System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort)).ToList();
 
-            if (sort == "ff")
-            {
-                files.Remove(System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort, "natsuki_ff_eyebrows_b3a.png"));
-                files.Remove(System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort, "natsuki_ff_eyebrows_b3b.png"));
-            }
-
-            others.Add(files[Random.Shared.Next(0, files.Count)]);
+            // exclude low eyes from available eyebrow list
+            for (int i = brows.Count - 1; i >= 0; i--)
+                for (int j = 0; j < lowEyes.Length; j++)
+                    if (brows[i].Contains(lowEyes[j]))
+                    {
+                        brows.RemoveAt(i);
+                        break;
+                    }
+            
+            others.Add(GetRandomFile(System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort)));
         }
     }
 }
