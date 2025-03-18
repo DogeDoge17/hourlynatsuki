@@ -1,6 +1,5 @@
 ﻿using cli_bot;
 using Quill.Pages;
-using System.Drawing;
 using System.Net;
 using Path = cli_bot.Path;
 using SixLabors.ImageSharp.Formats.Png;
@@ -11,8 +10,6 @@ using Point = SixLabors.ImageSharp.Point;
 using System.Text;
 using Quill;
 using hourlynatsuki;
-using System.Runtime.CompilerServices;
-using System.IO;
 
 
 public partial class Program
@@ -24,13 +21,15 @@ public partial class Program
     static string[] _playerNames = [];
 
     static ComposePage compose = null;
+    static TwitterBot? suki;
 
-    static List<Tuple<float, Action>> _weightedRun = new List<Tuple<float, Action>>
-    {
-        new Tuple<float, Action>(.60f, DialogueQuote),
-        new Tuple<float, Action>(.33f, NatsSprite),
-        new Tuple<float, Action>(.07f, NatsMedia),
-    };
+    static List<Tuple<float, Action>> _weightedRun =
+    [
+       new(.73f, DialogueQuote),
+       new(.15f, NatsSprite),
+       new(.08f, NatsMedia),
+       // new(.03f, NatsPoem),
+    ];
 
 
     public static void Main(string[] argv)
@@ -40,26 +39,19 @@ public partial class Program
         DriverCreation.options.headless = true;
 
         _playerNames = File.OpenText("playernames.txt").ReadToEnd().Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).Select(wr => wr.Trim()).ToArray();
-        _mediaList = File.OpenText("media.txt").ReadToEnd().Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).Select(wr => wr.Trim()).ToArray();
+        _mediaList = File.OpenText("media.txt").ReadToEnd().Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).Select(wr => wr.Split("|")[0].Trim()).ToArray();
 
-        TwitterBot suki = new(TimeSpan.FromMinutes(60)) { DisplayName = "Hourly Natsuki" };
+        suki = new(TimeSpan.FromMinutes(60)) { DisplayName = "Hourly Natsuki" };
         suki.runAction += Run;
         suki.Start(argv);
     }
 
     static void NatsSprite()
-    {        
-        string sort = Random.Shared.NextDouble() < 0.85 ? "ff" : "fs";
+    {
         List<string> expressions = new(Directory.GetDirectories(Path.Assembly / "expressions").Count() + 1);
+        Point offset = new();
 
-        SpriteAssembly.AddBody(ref expressions, sort);
-        Point offset = expressions.Count > 1 ? new() : new(18, 22);
-
-        SpriteAssembly.AddHead(ref expressions, sort);
-        SpriteAssembly.AddNose(ref expressions, sort);
-        SpriteAssembly.AddMouth(ref expressions, sort);
-        SpriteAssembly.AddEyes(ref expressions, sort);
-        SpriteAssembly.AddBrows(ref expressions, sort);
+        SpriteAssembly.AssembleSprite(ref expressions, ref offset);
 
         using Image<Rgba32> img = new Image<Rgba32>(960, 960);
         img.Mutate(ctx => ctx.BackgroundColor(SixLabors.ImageSharp.Color.White));
@@ -70,15 +62,15 @@ public partial class Program
             img.Mutate(ctx => ctx.DrawImage(expression, i > 0 ? offset : new(0, 0), 1));
         }
 
-        using (FileStream fs = File.Create(Path.Assembly / "output.png"))
+        using (FileStream fs = File.Create(Path.Assembly / $"output-sprite.png"))
         {
             img.Save(fs, new PngEncoder());
         }
 
-        Output.Write("Tweeting suki sprite, ");
-        expressions.ForEach(exp => Output.Write(new Path(exp).FileName + " "));
+        Output.Write("Tweeting suki sprite, ");     
+        expressions.ForEach(exp => Output.Write(new Path(exp).FileName + ", "));
         Output.WriteLine(string.Empty);
-
+          
         compose.Tweet(new TweetData[]
         {
                 new TweetData
@@ -87,7 +79,7 @@ public partial class Program
                     {
                         new MediaData
                         {
-                            url = Path.Assembly / "output.png"
+                            url = Path.Assembly / "output-sprite.png"
                         }
                     }
                 },
@@ -98,19 +90,21 @@ public partial class Program
     {
         int randDia = Random.Shared.Next(0, _allowedWords.Count);
 
-        string dia = _allDia[_allowedWords[randDia]].Replace("[player]", _playerNames[Random.Shared.Next(0, _playerNames.Length)]);
+        string dia = _allDia[_allowedWords[randDia]].Replace("[player]", _playerNames[Random.Shared.Next(0, _playerNames.Length)]).Replace("\\\"", "\"");
 
         Output.WriteLine($"Tweeting quote \"{dia.TrimEnd('.')}\".");
 
         compose.Tweet(dia);
+
         RefreshWords(randDia);
         SaveBlacklist();
+
     }
 
     static void NatsMedia()
     {
         string url = _mediaList[Random.Shared.Next(0, _mediaList.Length)];
-        string tempFile = Path.Assembly / (!url.Contains("gif") ? "media.jpg" : "media.gif");
+        string tempFile = Path.Assembly / (!url.Contains(".gif") ? "media.jpg" : "media.gif");
         using (WebClient client = new())
         {
             client.DownloadFile(new Uri(url), tempFile);
@@ -121,11 +115,20 @@ public partial class Program
         compose.Tweet("", tempFile);
     }
 
+    private static void NatsPoem()
+    {
+        //for(int i =0; i < 30; i++)
+        //    Poetry.GeneratePoem(i);
+        Poetry.GeneratePoem(100);
+
+        // compose.Tweet("", "poem.png");
+        suki.ShutDown();
+        System.Environment.Exit(1);
+    }
+
     static void RefreshWords(int exclude = -1)
     {
         string saidPath = Path.Assembly / "said.txt";
-
-        HashSet<int> badWords = new(_allDia.Length);
 
         if (!File.Exists(saidPath))
         {
@@ -134,12 +137,14 @@ public partial class Program
 
         string[] lines = File.ReadAllLines(saidPath);
 
-        badWords = new(lines.Length);
+        HashSet<int> badWords = new(lines.Length);
 
         foreach (string line in lines)
         {
             if (line.Trim() != string.Empty)
-                badWords.Append(Int32.Parse(line));
+            {
+                badWords.Add(Int32.Parse(line));
+            }
         }
 
         _allowedWords = new();

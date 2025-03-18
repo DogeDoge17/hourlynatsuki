@@ -1,6 +1,6 @@
 # Hourly Natsuki
  The source code to [Hourly Natsuki](https://x.com/hourlynatsuki) on Twitter.\
- The Bot has a 60% chance to tweet out a random Natsuki dialogue from the game. A 33% chance to generate a sprite using assests from [MPT](https://github.com/chronoshag/DDLCMPT). And a 7% chance to tweet random official media.\
+ The Bot has a 73% chance to tweet out a random Natsuki dialogue from the game. A 15% chance to generate a sprite using assests from [MPT](https://github.com/chronoshag/DDLCMPT). And an 8% chance to tweet random official media.\
  When the bot encounters a piece of dialogue that prompts Ren'Py to say the player name, the bot will randomly choose a name from a [predefined list](https://github.com/DogeDoge17/hourlynatsuki/blob/master/playernames.txt). If you have any names you want to be added, feel free to reach out and ask.
 
 # Setup

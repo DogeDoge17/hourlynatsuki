@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using cli_bot;
-using System.Threading.Tasks;
-using Path = cli_bot.Path;
-using System.Reflection.Metadata;
-using OpenQA.Selenium.DevTools.V130.Page;
+﻿using Path = cli_bot.Path;
+using SixLabors.ImageSharp;
 
 namespace hourlynatsuki
 {
@@ -36,7 +29,27 @@ namespace hourlynatsuki
         }
 
         public static void AddHead(ref List<string> others, string sort) => others.Add(System.IO.Path.Combine(Path.Assembly, "expressions", "head", sort + ".png"));
-        public static void AddNose(ref List<string> others, string sort) => others.Add(GetRandomFile(System.IO.Path.Combine(Path.Assembly, "expressions", "nose", sort)));
+        public static bool AddNose(ref List<string> others, string sort) {
+            if(sort == "fs" && Random.Shared.NextDouble() < 0.03) {
+                others.Add(System.IO.Path.Combine(Path.Assembly, "expressions", "nose", sort, "natsuki_fs_nose_n5.png"));
+                return false;
+            }
+
+            List<string> allNoses = Directory.GetFiles(System.IO.Path.Combine(Path.Assembly, "expressions", "nose", sort)).ToList();
+
+            for(int i = allNoses.Count -1; i >= 0; i--)
+            {
+                if (allNoses[i].Contains("natsuki_fs_nose_n5.png"))
+                {
+                    allNoses.RemoveAt(i);
+                    break;
+                }
+            }
+
+            others.Add(allNoses[Random.Shared.Next(allNoses.Count)]);
+            return true;
+        }
+
         public static void AddMouth(ref List<string> others, string sort) => others.Add(GetRandomFile(System.IO.Path.Combine(Path.Assembly, "expressions", "mouth", sort)));
         public static void AddEyes(ref List<string> others, string sort) => others.Add(GetRandomFile(System.IO.Path.Combine(Path.Assembly, "expressions", "eyes", sort)));
         public static void AddBrows(ref List<string> others, string sort)
@@ -44,30 +57,42 @@ namespace hourlynatsuki
             double mode = Random.Shared.NextDouble();
 
             string eyes = others[others.Count - 1];
-            
-            string[] lowEyes = { "natsuki_ff_eyebrows_b3a.png", "natsuki_ff_eyebrows_b3b.png", "natsuki_ff_eyebrows_b3c.png" };
+
+            string[] lowBrows = (sort == "fs") ? ["natsuki_fs_eyebrows_b2.png"]  : ["natsuki_ff_eyebrows_b3a.png", "natsuki_ff_eyebrows_b3b.png", "natsuki_ff_eyebrows_b3c.png"];
 
             // only closed eyes should have the low eyebrows
-            if(eyes.Contains("e4") && !eyes.Contains("e4c"))
-            {                
-
+            if ((sort == "ff" && eyes.Contains("e4") && !eyes.Contains("e4c")) || (sort == "fs" && (eyes.Contains("_e4.png") || eyes.Contains("_e5.png") || eyes.Contains("_e6.png"))))
+            {
                 // to add variation
-                others.Add(Random.Shared.NextDouble() > .2 ? System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort, lowEyes[Random.Shared.Next(0, lowEyes.Length)]) : GetRandomFile(System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort)));
+                others.Add(Random.Shared.NextDouble() > .2 ? System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort, lowBrows[Random.Shared.Next(0, lowBrows.Length)]) : GetRandomFile(System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort)));
                 return;
             }
 
-            List<string> brows = Directory.GetFiles(System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort)).ToList();
+            List<string> allBrows = Directory.GetFiles(System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort)).ToList();
 
             // exclude low eyes from available eyebrow list
-            for (int i = brows.Count - 1; i >= 0; i--)
-                for (int j = 0; j < lowEyes.Length; j++)
-                    if (brows[i].Contains(lowEyes[j]))
+            for (int i = allBrows.Count - 1; i >= 0; i--)
+                for (int j = 0; j < lowBrows.Length; j++)
+                    if (allBrows[i].Contains(lowBrows[j]))
                     {
-                        brows.RemoveAt(i);
+                        allBrows.RemoveAt(i);
                         break;
                     }
-            
-            others.Add(GetRandomFile(System.IO.Path.Combine(Path.Assembly, "expressions", "brows", sort)));
+
+            others.Add(allBrows[Random.Shared.Next(allBrows.Count)]);
+        }
+
+        public static void AssembleSprite(ref List<string> expressions, ref Point offset)
+        {
+            string sort = Random.Shared.NextDouble() < 0.80 ? "ff" : "fs";
+            AddBody(ref expressions, sort);
+            offset = expressions.Count > 1 ? new() : new(18, 22);
+
+            AddHead(ref expressions, sort);
+            if (!AddNose(ref expressions, sort)) return;
+            AddMouth(ref expressions, sort);
+            AddEyes(ref expressions, sort);
+            AddBrows(ref expressions, sort);
         }
     }
 }
