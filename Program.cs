@@ -1,15 +1,15 @@
 ﻿using cli_bot;
+using hourlynatsuki;
+using Quill;
 using Quill.Pages;
-using System.Net;
-using Path = cli_bot.Path;
-using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using Point = SixLabors.ImageSharp.Point;
+using System.Net;
 using System.Text;
-using Quill;
-using hourlynatsuki;
+using Path = cli_bot.Path;
+using Point = SixLabors.ImageSharp.Point;
 
 
 public partial class Program
@@ -20,7 +20,7 @@ public partial class Program
     static string[] _mediaList = [];
     static string[] _playerNames = [];
 
-    static ComposePage compose = null;
+    static ComposePage? compose = null;
     static TwitterBot? suki;
 
     static List<Tuple<float, Action>> _weightedRun =
@@ -38,17 +38,17 @@ public partial class Program
 
         DriverCreation.options.headless = true;
 
-        _playerNames = File.OpenText("playernames.txt").ReadToEnd().Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).Select(wr => wr.Trim()).ToArray();
-        _mediaList = File.OpenText("media.txt").ReadToEnd().Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).Select(wr => wr.Split("|")[0].Trim()).ToArray();
+        _playerNames = File.OpenText("playernames.txt").ReadToEnd().Split(["\r\n", "\n", "\r"], StringSplitOptions.RemoveEmptyEntries).Select(wr => wr.Trim()).ToArray();
+        _mediaList = File.OpenText("media.txt").ReadToEnd().Split(["\r\n", "\n", "\r"], StringSplitOptions.RemoveEmptyEntries).Select(wr => wr.Split("|")[0].Trim()).ToArray();
 
         suki = new(TimeSpan.FromMinutes(60)) { DisplayName = "Hourly Natsuki" };
-        suki.runAction += Run;
+        suki.RunAction += Run;
         suki.Start(argv);
     }
 
     static void NatsSprite()
     {
-        List<string> expressions = new(Directory.GetDirectories(Path.Assembly / "expressions").Count() + 1);
+        List<string> expressions = new(Directory.GetDirectories(Path.Assembly / "expressions").Length + 1);
         Point offset = new();
 
         SpriteAssembly.AssembleSprite(ref expressions, ref offset);
@@ -67,11 +67,11 @@ public partial class Program
             img.Save(fs, new PngEncoder());
         }
 
-        Output.Write("Tweeting suki sprite, ");     
+        Output.Write("Tweeting suki sprite, ");
         expressions.ForEach(exp => Output.Write(new Path(exp).FileName + ", "));
         Output.WriteLine(string.Empty);
-          
-        compose.Tweet(new TweetData[]
+
+        compose?.Tweet(new TweetData[]
         {
                 new TweetData
                 {
@@ -94,25 +94,29 @@ public partial class Program
 
         Output.WriteLine($"Tweeting quote \"{dia.TrimEnd('.')}\".");
 
-        compose.Tweet(dia);
+        _ = compose?.Tweet(dia);
 
         RefreshWords(randDia);
         SaveBlacklist();
-
     }
 
     static void NatsMedia()
     {
         string url = _mediaList[Random.Shared.Next(0, _mediaList.Length)];
         string tempFile = Path.Assembly / (!url.Contains(".gif") ? "media.jpg" : "media.gif");
-        using (WebClient client = new())
+
+        using (HttpClient httpClient = new())
         {
-            client.DownloadFile(new Uri(url), tempFile);
+            using var response = httpClient.GetAsync(url).Result;
+            response.EnsureSuccessStatusCode();
+            using var stream = response.Content.ReadAsStreamAsync().Result;
+            using var fileStream = File.Create(tempFile);
+            stream.CopyTo(fileStream);
         }
 
         Output.WriteLine($"Tweeting media: {new Path(url).FileName}");
 
-        compose.Tweet("", tempFile);
+        _ = compose?.Tweet("", tempFile);
     }
 
     private static void NatsPoem()
@@ -122,7 +126,7 @@ public partial class Program
         Poetry.GeneratePoem(100);
 
         // compose.Tweet("", "poem.png");
-        suki.ShutDown();
+        suki?.ShutDown();
         System.Environment.Exit(1);
     }
 
@@ -186,11 +190,12 @@ public partial class Program
         File.WriteAllText(Path.Assembly / "said.txt", outp.ToString());
     }
 
-    static void Run(ComposePage composer, string[] args)
+    static void Run(ComposePage composer, string[]? args)
     {
         try
-        {
-            compose = composer;
+        {             
+            compose = composer;           
+
             float totalWeight = 0f;
             _weightedRun.ForEach(item => totalWeight += item.Item1);
 

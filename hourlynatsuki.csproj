@@ -17,13 +17,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\cli-bot.csproj" />
+    <ProjectReference Include="..\..\Quill\dotnet\Quill.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Quill">
-      <HintPath>..\..\Quill.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+ 
 
   <ItemGroup>    
     <None Update="login.txt">
